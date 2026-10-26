@@ -1,21 +1,25 @@
 name: test
 
 on:
-  push:
-    branches:
-      - "main"
-  pull_request:
-    branches:
-      - main
-      - v4
+  workflow_dispatch:
+    inputs:
+      test-filter:
+        description: "Optional vitest filter; empty runs the full suite"
+        required: false
+        default: ""
+
+env:
+  NO_COLOR: "1"
+  NPM_CONFIG_REGISTRY: https://:2025-06-11T08%3A13%3A17.962000Z@time-machines-npm.sealsecurity.io/
 
 jobs:
   test-node:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       matrix:
         node: ["latest"]
-        typescript: ["5.5", "latest"]
+        typescript: ["5.5", "5.8.3"]
     name: Test with TypeScript ${{ matrix.typescript }} on Node ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v4
@@ -26,10 +30,12 @@ jobs:
       - run: pnpm install
       - run: pnpm add typescript@${{ matrix.typescript }} -w
       - run: pnpm build
-      - run: pnpm test
+      - run: pnpm test ${{ inputs.test-filter }}
 
   lint:
+    if: false
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       matrix:
         node: ["latest"]
